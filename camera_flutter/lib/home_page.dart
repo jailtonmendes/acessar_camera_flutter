@@ -12,7 +12,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   //Chamando a instancia do imapicker para ser utilizada
-  ImagePicker imagePicker = ImagePicker();
+  final ImagePicker _picker = ImagePicker();
   File? imagemSelecionada;
 
   @override
@@ -55,27 +55,36 @@ class _HomePageState extends State<HomePage> {
 
 //PEGAR IMAGEM DA GALERIA
   getImageGallery() async {
-    final PickedFile? imagemTemporaria =
-        await imagePicker.getImage(source: ImageSource.gallery);
+    final XFile? imagemTemporaria =
+        await _picker.pickImage(source: ImageSource.gallery);
 
-    if (imagemTemporaria != null) {
-      File imagemCortada = await cortarImagem(File(imagemTemporaria.path));
-      setState(() {
-        imagemSelecionada = File(imagemCortada.path);
-      });
+    try {
+      if (imagemTemporaria != null) {
+        File imagemCortada = await cortarImagem(File(imagemTemporaria.path));
+
+        setState(() {
+          imagemSelecionada = File(imagemCortada.path);
+        });
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
 //PEGAR IMAGEM DA CAMERA
   getCameraImage() async {
-    final PickedFile? imagemTemporaria =
-        await imagePicker.getImage(source: ImageSource.camera);
+    final XFile? imagemTemporaria =
+        await _picker.pickImage(source: ImageSource.camera);
 
-    if (imagemTemporaria != null) {
-      File imagemCortada = await cortarImagem(File(imagemTemporaria.path));
-      setState(() {
-        imagemSelecionada = File(imagemCortada.path);
-      });
+    try {
+      if (imagemTemporaria != null) {
+        File imagemCortada = await cortarImagem(File(imagemTemporaria.path));
+        setState(() {
+          imagemSelecionada = File(imagemCortada.path);
+        });
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
