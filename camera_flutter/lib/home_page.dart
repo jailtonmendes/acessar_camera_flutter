@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,7 +14,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   //Chamando a instancia do imapicker para ser utilizada
-  final ImagePicker _picker = ImagePicker();
+  ImagePicker imagePicker = ImagePicker();
   File? imagemSelecionada;
 
   @override
@@ -29,7 +31,7 @@ class _HomePageState extends State<HomePage> {
               ? Container()
               : Padding(
                   padding: const EdgeInsets.all(100),
-                  child: Image.file(imagemSelecionada!),
+                  child: Image.file(File(imagemSelecionada!.path)),
                 ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -55,26 +57,23 @@ class _HomePageState extends State<HomePage> {
 
 //PEGAR IMAGEM DA GALERIA
   getImageGallery() async {
-    final XFile? imagemTemporaria =
-        await _picker.pickImage(source: ImageSource.gallery);
+    final PickedFile? imagemTemporaria =
+        await imagePicker.getImage(source: ImageSource.gallery);
 
     try {
       if (imagemTemporaria != null) {
         File imagemCortada = await cortarImagem(File(imagemTemporaria.path));
-
         setState(() {
           imagemSelecionada = File(imagemCortada.path);
         });
       }
-    } catch (e) {
-      print(e);
-    }
+    } catch (e) {}
   }
 
 //PEGAR IMAGEM DA CAMERA
-  getCameraImage() async {
-    final XFile? imagemTemporaria =
-        await _picker.pickImage(source: ImageSource.camera);
+  Future getCameraImage() async {
+    final PickedFile? imagemTemporaria =
+        await imagePicker.getImage(source: ImageSource.camera);
 
     try {
       if (imagemTemporaria != null) {
@@ -83,18 +82,23 @@ class _HomePageState extends State<HomePage> {
           imagemSelecionada = File(imagemCortada.path);
         });
       }
-    } catch (e) {
-      print(e);
-    }
+    } catch (e) {}
   }
 
-//CORTAR IMAGEM
+// CORTAR IMAGEM
   cortarImagem(File imagemTemporaria) async {
-    return await ImageCropper()
-        .cropImage(sourcePath: imagemTemporaria.path, aspectRatioPresets: [
-      CropAspectRatioPreset.square,
-      CropAspectRatioPreset.ratio16x9,
-      CropAspectRatioPreset.ratio4x3
-    ]);
+    return await ImageCropper().cropImage(
+        sourcePath: imagemTemporaria.path,
+        aspectRatioPresets: [
+          CropAspectRatioPreset.square,
+          CropAspectRatioPreset.ratio16x9,
+          CropAspectRatioPreset.ratio4x3
+        ],
+        androidUiSettings: AndroidUiSettings(
+          toolbarTitle: 'Editar Foto',
+          toolbarColor: Colors.purple,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.original,
+        ));
   }
 }
